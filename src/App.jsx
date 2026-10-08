@@ -7,12 +7,20 @@ import Profile from "./Profile";
 import { createTask, deleteTask, getTasks, updateTask } from "./taskApi";
 import "./App.css";
 
+function getSavedLoginState() {
+  try {
+    return localStorage.getItem("flowly-is-logged-in") === "true";
+  } catch {
+    return false;
+  }
+}
+
 function App() {
   const user = { name: "Jonas Jonaitis", email: "jonas@flowly.lt" };
   const [activePage, setActivePage] = useState("home");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(getSavedLoginState);
   const [loginError, setLoginError] = useState("");
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -38,6 +46,11 @@ function App() {
     if (email === "admin" && password === "admin") {
       setIsLoggedIn(true);
       setLoginError("");
+      try {
+        localStorage.setItem("flowly-is-logged-in", "true");
+      } catch {
+        // Prisijungimas veiks šiame lange, net jei naršyklė blokuoja saugyklą.
+      }
       return;
     }
     setLoginError("Neteisingas vartotojo vardas arba slaptažodis.");
